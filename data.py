@@ -1,58 +1,56 @@
-from keras.preprocessing.image import ImageDataGenerator
-
 import json
 import cv2
 import os
 import numpy as np
 
-with open('market_attribute.json') as file:
-    data = json.load(file)
 
-imdir = 'Market-1501'
+def get_attributes_and_indexes():
+    with open('market_attribute.json') as file:
+        data = json.load(file)
+    return data
 
-attribute_names = [key for key in data['train']][:-1]
 
-train_indexes = data['train']['image_index']
-test_indexes = data['test']['image_index']
+def get_image_indexes(data):
+    return data['image_index']
 
-train_attributes_values = {}
-for i, image_index in enumerate(train_indexes):
-    train_attributes_values[image_index] = [data['train'][key][i]
-                                            for key in attribute_names]
 
-test_attributes_values = {}
-for i, image_index in enumerate(test_indexes):
-    test_attributes_values[image_index] = [data['test'][key][i]
-                                           for key in attribute_names]
+def get_attributes_names():
+    data = get_attributes_and_indexes()['train']
+    return [key for key in data][:-1]
 
-images_filenames = os.listdir(imdir)
 
-train_images = []
-train_attributes = []
-for file in images_filenames:
-    image_index = file[0:4]
-    if(image_index in train_indexes):
-        impath = os.path.join(imdir, file)
-        train_images.append(cv2.imread(impath))
-        train_attributes.append(train_attributes_values[image_index])
-train_images = np.asarray(train_images)
-train_attributes = np.asarray(train_attributes)
+def get_attributes_values(data):
+    indexes = get_image_indexes(data)
+    attribute_names = get_attributes_names()
 
-test_images = []
-test_attributes = []
-for file in images_filenames:
-    image_index = file[0:4]
-    if(image_index in test_indexes):
-        impath = os.path.join(imdir, file)
-        test_images.append(cv2.imread(impath))
-        test_attributes.append(test_attributes_values[image_index])
-test_images = np.asarray(test_images)
-test_attributes = np.asarray(test_attributes)
+    attributes_values = {}
 
-train_datagen = ImageDataGenerator(rescale=1. / 255.)
-train_datagen.fit(train_images)
-train_generator = train_datagen.flow(train_images, train_attributes)
+    for i, image_index in enumerate(indexes):
+        attributes_values[image_index] = [data[key][i]
+                                          for key in attribute_names]
+    return attributes_values
 
-test_datagen = ImageDataGenerator(rescale=1. / 255.)
-test_datagen.fit(test_images)
-test_generator = test_datagen.flow(test_images, test_attributes)
+
+def get_images_attributes(data, imdir='Market-1501'):
+    images_filenames = os.listdir(imdir)
+    attributes_values = get_attributes_values(data)
+    indexes = get_image_indexes(data)
+
+    images = []
+    attributes = []
+
+    for file in images_filenames:
+        image_index = file[0:4]
+        if(image_index in indexes):
+            impath = os.path.join(imdir, file)
+            images.append(cv2.imread(impath))
+            attributes.append(attributes_values[image_index])
+    return np.asarray(images), np.asarray(attributes)
+
+
+def load_data():
+    train_data = get_attributes_and_indexes()['train']
+    test_data = get_attributes_and_indexes()['test']
+    X_train, y_train = get_images_attributes(train_data)
+    X_test, y_test = get_images_attributes(test_data)
+    return (X_train, y_train), (X_test, y_test)

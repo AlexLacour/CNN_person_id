@@ -21,4 +21,4 @@ def create_model(input_shape, n_attributes=27):
 
 
 if __name__ == '__main__':
-    create_model((256, 256, 3)).summary()
+    create_model((64, 128, 3)).summary()
