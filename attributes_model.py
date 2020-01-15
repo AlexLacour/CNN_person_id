@@ -15,7 +15,7 @@ def create_model(input_shape, n_attributes=27):
     model.add(Dense(n_attributes, activation='sigmoid'))
 
     model.compile(optimizer='adam',
-                  loss='binary_crossentropy',
+                  loss='categorical_crossentropy',
                   metrics=['accuracy'])
     return model
 

@@ -3,6 +3,7 @@ from keras.callbacks import ModelCheckpoint
 import data
 import attributes_model
 import pickle
+import history_plot as h_plt
 
 
 def train_attributes_model(epochs=10, batch_size=32):
@@ -48,6 +49,7 @@ def train_attributes_model(epochs=10, batch_size=32):
 
 def main():
     train_attributes_model(epochs=5)
+    h_plt.plot_attributes_model()
 
 
 if __name__ == '__main__':
