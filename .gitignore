@@ -1,0 +1,7 @@
+*.h5
+*.pickle
+*.pkl
+*.json
+*.pdf
+/Market-1501
+/__pycache__
