@@ -17,7 +17,7 @@ def concatenate_features_attributes(features, attributes):
         id_data.append(feature)
     for attribute in attributes:
         id_data.append(int(attribute))
-    return id_data
+    return np.asarray(id_data)
 
 
 def generate_X_id(X_features, X_attributes):
@@ -25,7 +25,7 @@ def generate_X_id(X_features, X_attributes):
     for features, attributes in zip(X_features, X_attributes):
         id_data = concatenate_features_attributes(features, attributes)
         X_id.append(id_data)
-    return X_id
+    return np.asarray(X_id)
 
 
 def final_result(img, att_model, cnn_backbone, id_model):
@@ -59,6 +59,9 @@ def main():
     X_train_id = generate_X_id(X_train_features, X_train_att)
     X_test_id = generate_X_id(X_test_features, X_test_att)
     y_train_id, y_test_id = data.load_ids_data()
+
+    print(X_train_id.shape)
+    print(y_train_id.shape)
 
     id_model = train.get_train_id_model(X_train_id, y_train_id,
                                         X_test_id, y_test_id,

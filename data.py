@@ -66,11 +66,23 @@ def load_att_data():
     return (X_train, y_train), (X_test, y_test)
 
 
-def load_ids_data():
+def load_ids_data(imdir='Market-1501'):
     train_data = get_full_data()['train']
     test_data = get_full_data()['test']
 
-    ids_train = get_images_indexes(train_data)
-    ids_test = get_images_indexes(test_data)
+    train_ids = get_images_indexes(train_data)
+    test_ids = get_images_indexes(test_data)
 
-    return (ids_train, ids_test)
+    y_train = []
+    y_test = []
+
+    for img_name in os.listdir(imdir):
+        image_index = img_name[0:4]
+        if(image_index in train_ids):
+            y_train.append(int(image_index) - 1)
+        elif(image_index in test_ids):
+            y_test.append(int(image_index) - 1)
+    y_train = to_categorical(y_train, num_classes=1501)
+    y_test = to_categorical(y_test, num_classes=1501)
+
+    return np.asarray(y_train), np.asarray(y_test)
