@@ -2,6 +2,7 @@ import json
 import cv2
 import os
 import numpy as np
+from keras.utils import to_categorical
 
 
 def get_full_data():
@@ -26,8 +27,16 @@ def get_attributes_values(data):
     attributes_values = {}
 
     for i, image_index in enumerate(indexes):
-        attributes_values[image_index] = [data[key][i]
-                                          for key in attribute_names]
+        keys_data = []
+        for key in attribute_names:
+            key_data = data[key][i] - 1
+            if(key == 'age'):
+                key_data = to_categorical(key_data, num_classes=4, dtype='int')
+                for key_data_age_stat in key_data:
+                    keys_data.append(key_data_age_stat)
+            else:
+                keys_data.append(key_data)
+        attributes_values[image_index] = keys_data
     return attributes_values
 
 
@@ -45,7 +54,7 @@ def get_images_attributes(data, imdir='Market-1501'):
             impath = os.path.join(imdir, file)
             images.append(cv2.imread(impath))
             attributes.append(attributes_values[image_index])
-    return np.asarray(images, dtype='float32'), np.asarray(attributes, dtype='float32')
+    return np.asarray(images), np.asarray(attributes)
 
 
 def load_att_data():
@@ -53,11 +62,6 @@ def load_att_data():
     test_data = get_full_data()['test']
     X_train, y_train = get_images_attributes(train_data)
     X_test, y_test = get_images_attributes(test_data)
-
-    y_train[:, :] -= 1
-    y_test[:, :] -= 1
-    y_train[:, 0] *= (1. / 3.)
-    y_test[:, 0] *= (1. / 3.)
 
     return (X_train, y_train), (X_test, y_test)
 
@@ -70,10 +74,3 @@ def load_ids_data():
     ids_test = get_images_indexes(test_data)
 
     return (ids_train, ids_test)
-
-
-if __name__ == '__main__':
-    print(get_attributes_names())
-    (_, y), (_, _) = load_att_data()
-    for el in y[0:5]:
-        print(el)

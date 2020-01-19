@@ -1,13 +1,8 @@
 import matplotlib.pyplot as plt
-import pickle
 
 
-def plot_attributes_model():
-    file = open('history_attributes_model.pickle', 'rb')
-    history = pickle.load(file)
-    file.close()
-
-    print(history.keys())
+def plot_loss_acc(h):
+    history = h.history
 
     plt.figure()
     plt.subplot(1, 2, 1)
@@ -28,4 +23,4 @@ def plot_attributes_model():
 
 
 if __name__ == '__main__':
-    plot_attributes_model()
+    plot_loss_acc()

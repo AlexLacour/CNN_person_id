@@ -3,13 +3,15 @@ from keras.layers import Dense, BatchNormalization, Dropout, Flatten
 from keras.applications.resnet import ResNet50
 
 
-def create_model(input_shape, n_attributes=27):
+def create_model(input_shape, n_attributes=30, train_resnet=False):
     model = Sequential()
 
     resnet = ResNet50(include_top=False,
                       input_shape=input_shape)
-    for layer in resnet.layers:
-        layer.trainable = False
+
+    if(not train_resnet):
+        for layer in resnet.layers:
+            layer.trainable = False
     model.add(resnet)
     model.add(Flatten())
 
