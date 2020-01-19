@@ -33,6 +33,7 @@ def final_result(img, att_model, cnn_backbone, id_model):
 
     attributes = np.squeeze(att_model.predict(img))
     features = np.squeeze(cnn_backbone.predict(img))
+
     id_data = concatenate_features_attributes(features, attributes)
     id_data = np.expand_dims(id_data, 0)
     id_prediction = np.squeeze(id_model.predict(id_data))
@@ -60,20 +61,19 @@ def main():
     X_test_id = generate_X_id(X_test_features, X_test_att)
     y_train_id, y_test_id = data.load_ids_data()
 
-    print(X_train_id.shape)
-    print(y_train_id.shape)
-
     id_model = train.get_train_id_model(X_train_id, y_train_id,
                                         X_test_id, y_test_id,
-                                        training=True)
+                                        training=False)
 
-    img_names = os.listdir('Market-1501')
-    img_name = np.random.choice(img_names)
-    img = cv2.imread(img_name)
-
-    id_of_img = final_result(img, att_model, cnn_backbone, id_model)
-    print(f'Final result = {np.argmax(id_of_img)} : {np.max(id_of_img)}')
+    img = cv2.imread('Market-1501/0001_c1s1_001051_00.jpg')
+    predicted_class = final_result(img, att_model, cnn_backbone, id_model)
+    print(f'Predicted class : {np.argmax(predicted_class)}')
 
 
 if __name__ == '__main__':
     main()
+
+"""
+TODO NEXT :
+entraînement simultané pour régler tout ca correctement
+"""

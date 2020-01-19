@@ -7,6 +7,10 @@ import pickle
 import reweighting
 import id_model
 
+"""
+SEPARATE TRAINING FUNCTIONS
+"""
+
 
 def get_train_attributes_model(X_train, y_train, X_test, y_test, epochs=60, batch_size=32, training=True, train_resnet=False):
     X_train = X_train / 255.0
