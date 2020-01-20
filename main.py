@@ -53,17 +53,26 @@ def final_result(img, att_model, cnn_backbone, id_model):
 
 
 def main():
+    """
+    IMAGES + ATTRIBUTES LOADING
+    """
     (X_train, y_train), (X_test, y_test) = data.load_att_data()
 
     X_train = X_train / 255.0
     X_test = X_test / 255.0
 
+    """
+    ATTRIBUTES MODEL
+    """
     att_model = train.get_train_attributes_model(X_train, y_train,
                                                  X_test, y_test,
                                                  training=False,
                                                  train_resnet=True,
                                                  epochs=60)
 
+    """
+    ATTRIBUTES AND FEATURES PREDICTION
+    """
     cnn_backbone = Model(att_model.input, att_model.layers[2].output)
 
     X_train_features = cnn_backbone.predict(X_train)
@@ -72,17 +81,26 @@ def main():
     X_train_att = att_model.predict(X_train)
     X_test_att = att_model.predict(X_test)
 
+    """
+    ATT+F => ID
+    """
     y_train_id, y_test_id = data.load_ids_data()
 
     X_id = generate_X_id(X_train_features, X_train_att,
                          X_test_features, X_test_att)
     y_id = generate_y_id(y_train_id, y_test_id)
 
+    """
+    ID MODEL
+    """
     id_model = train.get_train_id_model(X_id, y_id,
                                         training=True,
                                         epochs=100,
                                         val_split=0.3)
 
+    """
+    TEST OF ID PREDICTION
+    """
     img = cv2.imread('Market-1501/0001_c1s1_001051_00.jpg')
     predicted_class = final_result(img, att_model, cnn_backbone, id_model)
     print(predicted_class)

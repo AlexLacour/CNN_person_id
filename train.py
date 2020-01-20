@@ -68,8 +68,11 @@ def get_train_id_model(X, y, epochs=60, batch_size=32, training=True, val_split=
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=val_split)
     if(training):
+        checkpointer = ModelCheckpoint('id_model.h5',
+                                       save_best_only=True,
+                                       monitor='val_loss')
         h = model.fit(X_train, y_train, epochs=epochs,
-                      batch_size=batch_size, validation_data=(X_test, y_test))
+                      batch_size=batch_size, callbacks=[checkpointer], validation_data=(X_test, y_test))
         h_plt.plot_loss_acc(h)
     model = load_model('id_model.h5')
 
