@@ -20,12 +20,24 @@ def concatenate_features_attributes(features, attributes):
     return np.asarray(id_data)
 
 
-def generate_X_id(X_features, X_attributes):
+def generate_X_id(X_train_f, X_train_att, X_test_f, X_test_att):
     X_id = []
-    for features, attributes in zip(X_features, X_attributes):
+    for features, attributes in zip(X_train_f, X_train_att):
+        id_data = concatenate_features_attributes(features, attributes)
+        X_id.append(id_data)
+    for features, attributes in zip(X_test_f, X_test_att):
         id_data = concatenate_features_attributes(features, attributes)
         X_id.append(id_data)
     return np.asarray(X_id)
+
+
+def generate_y_id(y_tr, y_te):
+    y_id = []
+    for label in y_tr:
+        y_id.append(label)
+    for label in y_te:
+        y_id.append(label)
+    return np.asarray(y_id)
 
 
 def final_result(img, att_model, cnn_backbone, id_model):
@@ -43,6 +55,9 @@ def final_result(img, att_model, cnn_backbone, id_model):
 def main():
     (X_train, y_train), (X_test, y_test) = data.load_att_data()
 
+    X_train = X_train / 255.0
+    X_test = X_test / 255.0
+
     att_model = train.get_train_attributes_model(X_train, y_train,
                                                  X_test, y_test,
                                                  training=False,
@@ -57,23 +72,23 @@ def main():
     X_train_att = att_model.predict(X_train)
     X_test_att = att_model.predict(X_test)
 
-    X_train_id = generate_X_id(X_train_features, X_train_att)
-    X_test_id = generate_X_id(X_test_features, X_test_att)
     y_train_id, y_test_id = data.load_ids_data()
 
-    id_model = train.get_train_id_model(X_train_id, y_train_id,
-                                        X_test_id, y_test_id,
-                                        training=False)
+    X_id = generate_X_id(X_train_features, X_train_att,
+                         X_test_features, X_test_att)
+    y_id = generate_y_id(y_train_id, y_test_id)
+
+    id_model = train.get_train_id_model(X_id, y_id,
+                                        training=True,
+                                        epochs=100,
+                                        val_split=0.3)
 
     img = cv2.imread('Market-1501/0001_c1s1_001051_00.jpg')
     predicted_class = final_result(img, att_model, cnn_backbone, id_model)
+    print(predicted_class)
+    print(np.max(predicted_class))
     print(f'Predicted class : {np.argmax(predicted_class)}')
 
 
 if __name__ == '__main__':
     main()
-
-"""
-TODO NEXT :
-entraînement simultané pour régler tout ca correctement
-"""

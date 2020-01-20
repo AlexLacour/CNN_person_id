@@ -1,6 +1,7 @@
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
+from sklearn.model_selection import train_test_split
 import attributes_model
 import history_plot as h_plt
 import pickle
@@ -13,9 +14,6 @@ SEPARATE TRAINING FUNCTIONS
 
 
 def get_train_attributes_model(X_train, y_train, X_test, y_test, epochs=60, batch_size=32, training=True, train_resnet=False):
-    X_train = X_train / 255.0
-    X_test = X_test / 255.0
-
     train_datagen = ImageDataGenerator()
     test_datagen = ImageDataGenerator()
 
@@ -65,14 +63,13 @@ def get_train_reweight_model(pred_train, y_train, pred_test, y_test, epochs=60, 
     return model
 
 
-def get_train_id_model(X_train, y_train, X_test, y_test, epochs=60, batch_size=32, training=True):
-    model = id_model.create_model(len(X_train[0]))
+def get_train_id_model(X, y, epochs=60, batch_size=32, training=True, val_split=0.3):
+    model = id_model.create_model(len(X[0]))
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=val_split)
     if(training):
-        checkpointer = ModelCheckpoint('id_model.h5',
-                                       save_best_only=True,
-                                       monitor='val_loss')
-        h = model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, callbacks=[
-                      checkpointer], validation_data=(X_test, y_test))
+        h = model.fit(X_train, y_train, epochs=epochs,
+                      batch_size=batch_size, validation_data=(X_test, y_test))
         h_plt.plot_loss_acc(h)
     model = load_model('id_model.h5')
 

@@ -79,10 +79,18 @@ def load_ids_data(imdir='Market-1501'):
     for img_name in os.listdir(imdir):
         image_index = img_name[0:4]
         if(image_index in train_ids):
-            y_train.append(int(image_index) - 1)
+            img_idx_tmp = int(image_index) - 1
+            y_train.append(img_idx_tmp)
         elif(image_index in test_ids):
-            y_test.append(int(image_index) - 1)
+            img_idx_tmp = int(image_index) - 1
+            y_test.append(img_idx_tmp)
     y_train = to_categorical(y_train, num_classes=1501)
     y_test = to_categorical(y_test, num_classes=1501)
 
     return np.asarray(y_train), np.asarray(y_test)
+
+
+if __name__ == '__main__':
+    tr, te = load_ids_data()
+    print(tr.shape)
+    print(te.shape)
