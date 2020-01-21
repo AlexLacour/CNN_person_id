@@ -116,7 +116,7 @@ def main():
     id_model = train.get_train_id_model(X_id, y_id,
                                         training=True,
                                         epochs=60,
-                                        val_split=0.1)
+                                        val_split=0.05)
 
     print('ID MODEL DONE')
 
