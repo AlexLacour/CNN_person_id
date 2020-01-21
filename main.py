@@ -4,6 +4,7 @@ from keras.models import Model
 import numpy as np
 import os
 import cv2
+import random
 
 
 def attributes_prediction_bw(att_model, imgs):
@@ -52,6 +53,17 @@ def final_result(img, att_model, cnn_backbone, id_model):
     return id_prediction
 
 
+def model_evaluation(att_model, cnn_backbone, id_model, imdir='Market-1501', sample_size=10):
+    imgs_names = os.listdir(imdir)
+    imgs_names_to_predict = random.sample(imgs_names, sample_size)
+    predictions = {}
+    for img_name in imgs_names_to_predict:
+        img = cv2.imread(os.path.join(imdir, img_name)) / 255.0
+        predictions[img_name] = final_result(
+            img, att_model, cnn_backbone, id_model)
+    return predictions
+
+
 def main():
     """
     IMAGES + ATTRIBUTES LOADING
@@ -61,6 +73,8 @@ def main():
     X_train = X_train / 255.0
     X_test = X_test / 255.0
 
+    print('IMAGES + ATTRIBUTES LOADING DONE')
+
     """
     ATTRIBUTES MODEL
     """
@@ -69,6 +83,8 @@ def main():
                                                  training=False,
                                                  train_resnet=True,
                                                  epochs=60)
+
+    print('ATTRIBUTES MODEL DONE')
 
     """
     ATTRIBUTES AND FEATURES PREDICTION
@@ -81,6 +97,8 @@ def main():
     X_train_att = att_model.predict(X_train)
     X_test_att = att_model.predict(X_test)
 
+    print('ATTRIBUTES AND FEATURES PREDICTION DONE')
+
     """
     ATT+F => ID
     """
@@ -90,6 +108,8 @@ def main():
                          X_test_features, X_test_att)
     y_id = generate_y_id(y_train_id, y_test_id)
 
+    print('ATT+F => ID DONE')
+
     """
     ID MODEL
     """
@@ -98,14 +118,16 @@ def main():
                                         epochs=60,
                                         val_split=0.1)
 
+    print('ID MODEL DONE')
+
     """
     TEST OF ID PREDICTION
     """
-    img = cv2.imread('Market-1501/0001_c1s1_001051_00.jpg')
-    predicted_class = final_result(img, att_model, cnn_backbone, id_model)
-    print(predicted_class)
-    print(np.max(predicted_class))
-    print(f'Predicted class : {np.argmax(predicted_class)}')
+    predictions = model_evaluation(att_model, cnn_backbone, id_model)
+    for img_name, prediction in zip(predictions.keys(), predictions.values()):
+        print(f'{img_name} => {np.argmax(prediction)}')
+
+    print('ID PREDICTION DONE')
 
 
 if __name__ == '__main__':
