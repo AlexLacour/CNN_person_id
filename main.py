@@ -95,8 +95,8 @@ def main():
     """
     id_model = train.get_train_id_model(X_id, y_id,
                                         training=True,
-                                        epochs=100,
-                                        val_split=0.3)
+                                        epochs=60,
+                                        val_split=0.1)
 
     """
     TEST OF ID PREDICTION
