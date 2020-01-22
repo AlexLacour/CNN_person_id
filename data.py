@@ -102,16 +102,18 @@ def data_for_full_model():
         X_img.append(img_tr)
     for img_te in X_test:
         X_img.append(img_te)
+
     for att_tr in y_train:
         y_att.append(att_tr)
-    for att_te in y_train:
+    for att_te in y_test:
         y_att.append(att_te)
+
     for id_tr in y_id_train:
         y_id.append(id_tr)
     for id_te in y_id_test:
         y_id.append(id_te)
 
-    return np.asarray(X_img) / 255.0, np.asarray(y_att), np.asarray(y_id)
+    return np.asarray(X_img), np.asarray(y_att), np.asarray(y_id)
 
 
 if __name__ == '__main__':

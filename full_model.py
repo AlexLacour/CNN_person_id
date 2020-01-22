@@ -3,12 +3,13 @@ from keras.layers import Input, Dense, BatchNormalization, Dropout, Activation, 
 from keras.applications.resnet import ResNet50
 from keras.optimizers import Adam
 from keras.callbacks import LearningRateScheduler
+from keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import data
 
 
-def create_model(img_shape=(64, 128, 3), n_att=30, n_ids=1501):
+def create_model(img_shape=(128, 64, 3), n_att=30, n_ids=1501):
     """
     INPUT
     """
@@ -41,7 +42,7 @@ def create_model(img_shape=(64, 128, 3), n_att=30, n_ids=1501):
     FULL MODEL
     """
     model = Model(inputs=img_input,
-                  outputs=ids)
+                  outputs=[attributes, ids])
 
     losses = {'attributes_output': 'binary_crossentropy',
               'ids_output': 'categorical_crossentropy'}
@@ -60,11 +61,18 @@ def lr_schedule(epoch):
 
 
 if __name__ == '__main__':
-    model = create_model()
+    """
+    DATA LOADING
+    """
     X, y_att, y_id = data.data_for_full_model()
+    print('DATA LOADED')
+
+    model = create_model(img_shape=X[0].shape)
+    print('MODEL CREATED')
 
     X_train, X_test, y_att_train, y_att_test, y_id_train, y_id_test = train_test_split(
         X, y_att, y_id, test_size=0.2)
+    print('DATA SPLIT')
 
     callbacks = [LearningRateScheduler(schedule=lr_schedule)]
 
@@ -73,13 +81,20 @@ if __name__ == '__main__':
                       X_test, {'attributes_output': y_att_test, 'ids_output': y_id_test}),
                   epochs=60,
                   batch_size=32,
-                  callbacks=callbacks)
+                  callbacks=callbacks,
+                  verbose=1)
 
+    """
+    SAVE MODEL
+    """
     model.save_weights('full_model.h5')
     model_json = model.to_json()
     with open("model.json", "w") as json_file:
         json_file.write(model_json)
 
+    """
+    PLOT RESULTS
+    """
     loss_names = ['loss', 'attributes_output_loss', 'ids_output_loss']
     accuracy_names = ['attributes_output_acc', 'ids_output_acc']
 
