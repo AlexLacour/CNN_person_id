@@ -5,7 +5,7 @@ from keras.wrappers.scikit_learn import KerasClassifier
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
 
-def create_model(input_shape=542, n_classes=1501, n_hidden=1, n_neuron=1024, multiplier=2, activation='relu', first_activation='relu', norm=True, dropout_rate=0.5):
+def create_model(input_shape=542, n_classes=1501, n_hidden=0, n_neuron=1024, multiplier=2, activation='relu', first_activation='relu', norm=True, dropout_rate=0.4):
     model = Sequential()
 
     model.add(Dense(n_neuron,

@@ -90,6 +90,30 @@ def load_ids_data(imdir='Market-1501'):
     return np.asarray(y_train), np.asarray(y_test)
 
 
+def data_for_full_model():
+    (X_train, y_train), (X_test, y_test) = load_att_data()
+    y_id_train, y_id_test = load_ids_data()
+
+    X_img = []
+    y_att = []
+    y_id = []
+
+    for img_tr in X_train:
+        X_img.append(img_tr)
+    for img_te in X_test:
+        X_img.append(img_te)
+    for att_tr in y_train:
+        y_att.append(att_tr)
+    for att_te in y_train:
+        y_att.append(att_te)
+    for id_tr in y_id_train:
+        y_id.append(id_tr)
+    for id_te in y_id_test:
+        y_id.append(id_te)
+
+    return np.asarray(X_img) / 255.0, np.asarray(y_att), np.asarray(y_id)
+
+
 if __name__ == '__main__':
     tr, te = load_ids_data()
     print(tr.shape)
