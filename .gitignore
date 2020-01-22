@@ -3,5 +3,6 @@
 *.pkl
 *.json
 *.pdf
+*.npy
 /Market-1501
 /__pycache__

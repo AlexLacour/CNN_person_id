@@ -113,10 +113,12 @@ def main():
     """
     ID MODEL
     """
+    np.save('X_id.npy', X_id)
+    np.save('y_id.npy', y_id)
     id_model = train.get_train_id_model(X_id, y_id,
-                                        training=True,
+                                        training=False,
                                         epochs=60,
-                                        val_split=0.05)
+                                        val_split=0.1)
 
     print('ID MODEL DONE')
 
@@ -125,7 +127,7 @@ def main():
     """
     predictions = model_evaluation(att_model, cnn_backbone, id_model)
     for img_name, prediction in zip(predictions.keys(), predictions.values()):
-        print(f'{img_name} => {np.argmax(prediction)}')
+        print(f'{img_name} => {np.argmax(prediction) + 1}')
 
     print('ID PREDICTION DONE')
 
