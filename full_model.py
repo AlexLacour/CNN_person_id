@@ -1,15 +1,25 @@
 from keras.models import Model
-from keras.layers import Input, Dense, BatchNormalization, Dropout, Activation, Flatten, Concatenate
+from keras.layers import Input, Dense, BatchNormalization, Dropout, Activation, Flatten, Concatenate, Conv2D, MaxPooling2D, Embedding, Reshape
 from keras.applications.resnet import ResNet50
 from keras.optimizers import Adam
 from keras.callbacks import LearningRateScheduler
-from keras.preprocessing.image import ImageDataGenerator
+import keras.backend as K
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 import matplotlib.pyplot as plt
+import numpy as np
+import random
+import cv2
+import os
 import data
 
 
-def create_model(img_shape=(128, 64, 3), n_att=30, n_ids=1501):
+N_EPOCHS = 60
+BATCH_SIZE = 32
+TEST_SIZE = 0.3
+
+
+def create_model(img_shape=(128, 64, 3), n_att=27, n_ids=1501):
     """
     INPUT
     """
@@ -28,13 +38,17 @@ def create_model(img_shape=(128, 64, 3), n_att=30, n_ids=1501):
     """
     ATTRIBUTES
     """
-    attributes = Dense(n_att, activation='sigmoid',
+    attributes = Dense(n_att,
+                       activation='relu',
                        name='attributes_output')(features)
 
     """
     ID PREDICTION
     """
-    ids = Concatenate(axis=1)([features, attributes])
+    ids = Concatenate()([features, attributes])
+    ids = Dense(1024)(ids)
+    ids = Dropout(0.4)(ids)
+
     ids = Dense(n_ids, activation='softmax',
                 name='ids_output')(ids)
 
@@ -43,14 +57,22 @@ def create_model(img_shape=(128, 64, 3), n_att=30, n_ids=1501):
     """
     model = Model(inputs=img_input,
                   outputs=[attributes, ids])
-
-    losses = {'attributes_output': 'binary_crossentropy',
+    losses = {'attributes_output': euclidian_distance_loss,
               'ids_output': 'categorical_crossentropy'}
+    losses_weights = {'attributes_output': 0.1,
+                      'ids_output': 0.9}
     optimizer = Adam(learning_rate=0.01)
 
-    model.compile(optimizer=optimizer, loss=losses, metrics=['accuracy'])
+    model.compile(optimizer=optimizer,
+                  loss=losses,
+                  loss_weights=losses_weights,
+                  metrics=['accuracy'])
 
     return model
+
+
+def euclidian_distance_loss(y_true, y_pred):
+    return K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
 
 
 def lr_schedule(epoch):
@@ -60,29 +82,47 @@ def lr_schedule(epoch):
     return lr
 
 
+def model_evaluation(model, imdir='Market-1501'):
+    img_names = os.listdir(imdir)
+    img_name = random.choice(img_names)
+    img = cv2.imread(os.path.join(imdir, img_name)) / 255.0
+    img = np.expand_dims(img, 0)
+    prediction = model.predict(img)
+    print(img_name)
+    return prediction
+
+
 if __name__ == '__main__':
     """
     DATA LOADING
     """
-    X, y_att, y_id = data.data_for_full_model()
-    print('DATA LOADED')
+    X, y_att, y_id = data.data_for_full_model(preprocess_att=False)
+    X = X / 255.0
+    print('DATA LOADED\n')
 
-    model = create_model(img_shape=X[0].shape)
-    print('MODEL CREATED')
+    X_s, y_att_s, y_id_s = shuffle(X, y_att, y_id)
+    print('DATA SHUFFLED\n')
+
+    model = create_model(img_shape=X[0].shape,
+                         n_att=len(y_att[0]),
+                         n_ids=len(y_id[0]))
+    model.summary()
+    print('MODEL CREATED\n')
 
     X_train, X_test, y_att_train, y_att_test, y_id_train, y_id_test = train_test_split(
-        X, y_att, y_id, test_size=0.2)
-    print('DATA SPLIT')
+        X_s, y_att_s, y_id_s, test_size=TEST_SIZE, shuffle=True)
+    print('DATA SPLIT\n')
 
     callbacks = [LearningRateScheduler(schedule=lr_schedule)]
 
+    print('TRAINING STARTED\n')
     h = model.fit(X_train, {'attributes_output': y_att_train, 'ids_output': y_id_train},
-                  validation_data=(
-                      X_test, {'attributes_output': y_att_test, 'ids_output': y_id_test}),
-                  epochs=60,
-                  batch_size=32,
+                  validation_data=(X_test,
+                                   {'attributes_output': y_att_test, 'ids_output': y_id_test}),
+                  epochs=N_EPOCHS,
+                  batch_size=BATCH_SIZE,
                   callbacks=callbacks,
-                  verbose=1)
+                  shuffle=True)
 
     """
     SAVE MODEL
@@ -93,17 +133,25 @@ if __name__ == '__main__':
         json_file.write(model_json)
 
     """
+    TEST MODEL
+    """
+    model.load_weights('full_model.h5')
+    prediction = model_evaluation(model)
+    print(prediction[0])
+    print(np.argmax(prediction[1]))
+
+    """
     PLOT RESULTS
     """
     loss_names = ['loss', 'attributes_output_loss', 'ids_output_loss']
-    accuracy_names = ['attributes_output_acc', 'ids_output_acc']
+    accuracy_names = ['attributes_output_accuracy', 'ids_output_accuracy']
 
     plt.figure()
     for i, loss in enumerate(loss_names):
         plt.subplot(3, 1, i + 1)
         plt.plot(h.history[loss])
         plt.plot(h.history['val_' + loss])
-        plt.ylabel('loss')
+        plt.ylabel(loss)
         plt.xlabel('epoch')
         plt.legend(['train', 'test'], loc='upper left')
     plt.show()

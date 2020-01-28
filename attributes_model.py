@@ -1,9 +1,14 @@
 from keras.models import Sequential
 from keras.layers import Dense, BatchNormalization, Dropout, Flatten
 from keras.applications.resnet import ResNet50
+import keras.backend as K
 
 
-def create_model(input_shape, n_attributes=30, train_resnet=False):
+def euclidian_distance_loss(y_true, y_pred):
+    return K.sqrt(K.sum(K.square(y_pred - y_true), axis=-1))
+
+
+def create_model(input_shape, n_attributes=27, train_resnet=False):
     model = Sequential()
 
     resnet = ResNet50(include_top=False,
@@ -19,10 +24,10 @@ def create_model(input_shape, n_attributes=30, train_resnet=False):
     model.add(BatchNormalization())
     model.add(Dropout(0.5))
 
-    model.add(Dense(n_attributes, activation='sigmoid'))
+    model.add(Dense(n_attributes, activation='relu'))
 
     model.compile(optimizer='adam',
-                  loss='binary_crossentropy',
+                  loss=euclidian_distance_loss,
                   metrics=['accuracy'])
     return model
 

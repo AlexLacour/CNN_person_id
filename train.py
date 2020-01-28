@@ -7,6 +7,7 @@ import history_plot as h_plt
 import pickle
 import reweighting
 import id_model
+import numpy as np
 
 """
 SEPARATE TRAINING FUNCTIONS
@@ -40,11 +41,16 @@ def get_train_attributes_model(X_train, y_train, X_test, y_test, epochs=60, batc
                                 epochs=epochs,
                                 callbacks=[checkpointer])
 
+        img = X_train[0]
+        result = np.squeeze(model.predict(np.expand_dims(img, 0)))
+        print(y_train[0])
+        print(result.astype(int))
+
         with open('history_attributes_model.pickle', 'wb') as file:
             pickle.dump(h.history, file)
         h_plt.plot_loss_acc(h)
 
-    model = load_model('attributes_model.h5')
+    # model = load_model('attributes_model.h5')
 
     return model
 

@@ -68,7 +68,7 @@ def main():
     """
     IMAGES + ATTRIBUTES LOADING
     """
-    (X_train, y_train), (X_test, y_test) = data.load_att_data()
+    (X_train, y_train), (X_test, y_test) = data.load_att_data(preprocess_att=False)
 
     X_train = X_train / 255.0
     X_test = X_test / 255.0
@@ -80,56 +80,56 @@ def main():
     """
     att_model = train.get_train_attributes_model(X_train, y_train,
                                                  X_test, y_test,
-                                                 training=False,
+                                                 training=True,
                                                  train_resnet=True,
-                                                 epochs=60)
+                                                 epochs=10)
 
     print('ATTRIBUTES MODEL DONE')
 
     """
     ATTRIBUTES AND FEATURES PREDICTION
     """
-    cnn_backbone = Model(att_model.input, att_model.layers[2].output)
+    # cnn_backbone = Model(att_model.input, att_model.layers[2].output)
 
-    X_train_features = cnn_backbone.predict(X_train)
-    X_test_features = cnn_backbone.predict(X_test)
+    # X_train_features = cnn_backbone.predict(X_train)
+    # X_test_features = cnn_backbone.predict(X_test)
 
-    X_train_att = att_model.predict(X_train)
-    X_test_att = att_model.predict(X_test)
+    # X_train_att = att_model.predict(X_train)
+    # X_test_att = att_model.predict(X_test)
 
-    print('ATTRIBUTES AND FEATURES PREDICTION DONE')
+    # print('ATTRIBUTES AND FEATURES PREDICTION DONE')
 
-    """
-    ATT+F => ID
-    """
-    y_train_id, y_test_id = data.load_ids_data()
+    # """
+    # ATT+F => ID
+    # """
+    # y_train_id, y_test_id = data.load_ids_data()
 
-    X_id = generate_X_id(X_train_features, X_train_att,
-                         X_test_features, X_test_att)
-    y_id = generate_y_id(y_train_id, y_test_id)
+    # X_id = generate_X_id(X_train_features, X_train_att,
+    #                      X_test_features, X_test_att)
+    # y_id = generate_y_id(y_train_id, y_test_id)
 
-    print('ATT+F => ID DONE')
+    # print('ATT+F => ID DONE')
 
-    """
-    ID MODEL
-    """
-    np.save('X_id.npy', X_id)
-    np.save('y_id.npy', y_id)
-    id_model = train.get_train_id_model(X_id, y_id,
-                                        training=False,
-                                        epochs=60,
-                                        val_split=0.1)
+    # """
+    # ID MODEL
+    # """
+    # np.save('X_id.npy', X_id)
+    # np.save('y_id.npy', y_id)
+    # id_model = train.get_train_id_model(X_id, y_id,
+    #                                     training=False,
+    #                                     epochs=60,
+    #                                     val_split=0.1)
 
-    print('ID MODEL DONE')
+    # print('ID MODEL DONE')
 
-    """
-    TEST OF ID PREDICTION
-    """
-    predictions = model_evaluation(att_model, cnn_backbone, id_model)
-    for img_name, prediction in zip(predictions.keys(), predictions.values()):
-        print(f'{img_name} => {np.argmax(prediction) + 1}')
+    # """
+    # TEST OF ID PREDICTION
+    # """
+    # predictions = model_evaluation(att_model, cnn_backbone, id_model)
+    # for img_name, prediction in zip(predictions.keys(), predictions.values()):
+    #     print(f'{img_name} => {np.argmax(prediction) + 1}')
 
-    print('ID PREDICTION DONE')
+    # print('ID PREDICTION DONE')
 
 
 if __name__ == '__main__':

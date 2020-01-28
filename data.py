@@ -20,7 +20,7 @@ def get_attributes_names():
     return [key for key in data][:-1]
 
 
-def get_attributes_values(data):
+def get_attributes_values(data, preprocess_att=True):
     indexes = get_images_indexes(data)
     attribute_names = get_attributes_names()
 
@@ -29,20 +29,26 @@ def get_attributes_values(data):
     for i, image_index in enumerate(indexes):
         keys_data = []
         for key in attribute_names:
-            key_data = data[key][i] - 1
-            if(key == 'age'):
-                key_data = to_categorical(key_data, num_classes=4, dtype='int')
-                for key_data_age_stat in key_data:
-                    keys_data.append(key_data_age_stat)
+            key_data = data[key][i]
+            if(preprocess_att):
+                key_data -= 1
+                if(key == 'age'):
+                    key_data_age = to_categorical(
+                        key_data, num_classes=4, dtype='int')
+                    for key_data_age_stat in key_data_age:
+                        keys_data.append(key_data_age_stat)
+                else:
+                    keys_data.append(key_data)
             else:
                 keys_data.append(key_data)
         attributes_values[image_index] = keys_data
     return attributes_values
 
 
-def get_images_attributes(data, imdir='Market-1501'):
+def get_images_attributes(data, imdir='Market-1501', preprocess_att=True):
     images_filenames = os.listdir(imdir)
-    attributes_values = get_attributes_values(data)
+    attributes_values = get_attributes_values(
+        data, preprocess_att=preprocess_att)
     indexes = get_images_indexes(data)
 
     images = []
@@ -57,11 +63,13 @@ def get_images_attributes(data, imdir='Market-1501'):
     return np.asarray(images), np.asarray(attributes)
 
 
-def load_att_data():
+def load_att_data(preprocess_att=True):
     train_data = get_full_data()['train']
     test_data = get_full_data()['test']
-    X_train, y_train = get_images_attributes(train_data)
-    X_test, y_test = get_images_attributes(test_data)
+    X_train, y_train = get_images_attributes(
+        train_data, preprocess_att=preprocess_att)
+    X_test, y_test = get_images_attributes(
+        test_data, preprocess_att=preprocess_att)
 
     return (X_train, y_train), (X_test, y_test)
 
@@ -90,8 +98,9 @@ def load_ids_data(imdir='Market-1501'):
     return np.asarray(y_train), np.asarray(y_test)
 
 
-def data_for_full_model():
-    (X_train, y_train), (X_test, y_test) = load_att_data()
+def data_for_full_model(preprocess_att=False):
+    (X_train, y_train), (X_test, y_test) = load_att_data(
+        preprocess_att=preprocess_att)
     y_id_train, y_id_test = load_ids_data()
 
     X_img = []
@@ -113,10 +122,13 @@ def data_for_full_model():
     for id_te in y_id_test:
         y_id.append(id_te)
 
-    return np.asarray(X_img), np.asarray(y_att), np.asarray(y_id)
+    X_img = np.asarray(X_img)
+    y_att = np.asarray(y_att)
+    y_id = np.asarray(y_id)
+
+    return X_img, y_att, y_id
 
 
 if __name__ == '__main__':
-    tr, te = load_ids_data()
-    print(tr.shape)
-    print(te.shape)
+    x, y, z = data_for_full_model(True)
+    print(y[0])
