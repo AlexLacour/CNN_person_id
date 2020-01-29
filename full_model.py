@@ -1,7 +1,7 @@
 from keras.models import Model
 from keras.layers import Input, Dense, BatchNormalization, Dropout, Activation, Flatten, Concatenate, Conv2D, MaxPooling2D, Embedding, Reshape
 from keras.applications.resnet import ResNet50
-from keras.optimizers import Adam
+from keras.optimizers import Adam, SGD
 from keras.callbacks import LearningRateScheduler
 import keras.backend as K
 from sklearn.model_selection import train_test_split
@@ -14,7 +14,7 @@ import os
 import data
 
 
-N_EPOCHS = 60
+N_EPOCHS = 20
 BATCH_SIZE = 32
 TEST_SIZE = 0.3
 
@@ -46,7 +46,7 @@ def create_model(img_shape=(128, 64, 3), n_att=27, n_ids=1501):
     ID PREDICTION
     """
     ids = Concatenate()([features, attributes])
-    ids = Dense(1024)(ids)
+    ids = Dense(1024)(attributes)
     ids = Dropout(0.4)(ids)
 
     ids = Dense(n_ids, activation='softmax',
@@ -61,7 +61,7 @@ def create_model(img_shape=(128, 64, 3), n_att=27, n_ids=1501):
               'ids_output': 'categorical_crossentropy'}
     losses_weights = {'attributes_output': 0.1,
                       'ids_output': 0.9}
-    optimizer = Adam(learning_rate=0.01)
+    optimizer = SGD(learning_rate=0.01)
 
     model.compile(optimizer=optimizer,
                   loss=losses,
@@ -138,7 +138,7 @@ if __name__ == '__main__':
     model.load_weights('full_model.h5')
     prediction = model_evaluation(model)
     print(prediction[0])
-    print(np.argmax(prediction[1]))
+    print(np.argmax(prediction[1]) + 1)
 
     """
     PLOT RESULTS
