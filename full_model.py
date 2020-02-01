@@ -1,7 +1,7 @@
 from keras.models import Model
 from keras.layers import Input, Dense, BatchNormalization, Dropout, Activation, Flatten, Concatenate, Multiply
 from keras.applications.resnet import ResNet50
-from keras.optimizers import Adam, SGD
+from keras.optimizers import SGD
 from keras.callbacks import LearningRateScheduler
 import keras.backend as K
 from sklearn.model_selection import train_test_split
@@ -15,7 +15,7 @@ import data
 
 N_EPOCHS = 60
 BATCH_SIZE = 32
-TEST_SIZE = 0.3
+TEST_SIZE = 0.2
 PREPRO_ATT = True
 
 
@@ -54,7 +54,7 @@ def create_model(img_shape=(128, 64, 3), n_att=27, n_ids=1501):
     ids = Concatenate()([features, attributes_r])
     ids = Dense(1024)(attributes)
     ids = BatchNormalization()(ids)
-    ids = Dropout(0.4)(ids)
+    ids = Dropout(0.5)(ids)
     ids = Activation('relu')(ids)
 
     ids = Dense(n_ids, activation='softmax',
@@ -144,6 +144,7 @@ if __name__ == '__main__':
     model.load_weights('full_model.h5')
     prediction = model_evaluation(model)
     print(prediction[0])
+    print(prediction[0].astype(int))
     print(np.argmax(prediction[1]) + 1)
 
     """
