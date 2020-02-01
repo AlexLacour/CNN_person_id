@@ -100,6 +100,11 @@ def model_evaluation(model, imdir='Market-1501'):
     return prediction
 
 
+# def model_metrics(model, X_train, y_train, X_test, y_test):
+#     predicted_y_train = model.predict(X_train)
+#     predicted_y_test = model.predict(X_test)
+
+
 if __name__ == '__main__':
     """
     DATA LOADING
@@ -118,25 +123,51 @@ if __name__ == '__main__':
         X, y_att, y_id, test_size=TEST_SIZE, shuffle=True)
     print('DATA SPLIT\n')
 
-    callbacks = [LearningRateScheduler(schedule=lr_schedule)]
+    # callbacks = [LearningRateScheduler(schedule=lr_schedule)]
 
-    print('TRAINING STARTED\n')
-    h = model.fit(X_train, {'attributes_output': y_att_train, 'ids_output': y_id_train},
-                  validation_data=(X_test,
-                                   {'attributes_output': y_att_test, 'ids_output': y_id_test}),
-                  epochs=N_EPOCHS,
-                  batch_size=BATCH_SIZE,
-                  callbacks=callbacks,
-                  shuffle=True,
-                  verbose=2)
+    # print('TRAINING STARTED\n')
+    # h = model.fit(X_train, {'attributes_output': y_att_train, 'ids_output': y_id_train},
+    #               validation_data=(X_test,
+    #                                {'attributes_output': y_att_test, 'ids_output': y_id_test}),
+    #               epochs=N_EPOCHS,
+    #               batch_size=BATCH_SIZE,
+    #               callbacks=callbacks,
+    #               shuffle=True,
+    #               verbose=2)
+
+    # """
+    # SAVE MODEL
+    # """
+    # model.save_weights('full_model.h5')
+    # model_json = model.to_json()
+    # with open("model.json", "w") as json_file:
+    #     json_file.write(model_json)
 
     """
-    SAVE MODEL
+    PLOT RESULTS
     """
-    model.save_weights('full_model.h5')
-    model_json = model.to_json()
-    with open("model.json", "w") as json_file:
-        json_file.write(model_json)
+    # loss_names = ['loss', 'attributes_output_loss', 'ids_output_loss']
+    # accuracy_names = ['attributes_output_accuracy', 'ids_output_accuracy']
+
+    # plt.figure()
+    # for i, loss in enumerate(loss_names):
+    #     plt.subplot(3, 1, i + 1)
+    #     plt.plot(h.history[loss])
+    #     plt.plot(h.history['val_' + loss])
+    #     plt.ylabel(loss)
+    #     plt.xlabel('epoch')
+    #     plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
+
+    # plt.figure()
+    # for i, acc in enumerate(accuracy_names):
+    #     plt.subplot(2, 1, i + 1)
+    #     plt.plot(h.history[acc])
+    #     plt.plot(h.history['val_' + acc])
+    #     plt.ylabel('acc')
+    #     plt.xlabel('epoch')
+    #     plt.legend(['train', 'test'], loc='upper left')
+    # plt.show()
 
     """
     TEST MODEL
@@ -144,31 +175,5 @@ if __name__ == '__main__':
     model.load_weights('full_model.h5')
     prediction = model_evaluation(model)
     print(prediction[0])
-    print(prediction[0].astype(int))
+    print(np.round(prediction[0]))
     print(np.argmax(prediction[1]) + 1)
-
-    """
-    PLOT RESULTS
-    """
-    loss_names = ['loss', 'attributes_output_loss', 'ids_output_loss']
-    accuracy_names = ['attributes_output_accuracy', 'ids_output_accuracy']
-
-    plt.figure()
-    for i, loss in enumerate(loss_names):
-        plt.subplot(3, 1, i + 1)
-        plt.plot(h.history[loss])
-        plt.plot(h.history['val_' + loss])
-        plt.ylabel(loss)
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
-
-    plt.figure()
-    for i, acc in enumerate(accuracy_names):
-        plt.subplot(2, 1, i + 1)
-        plt.plot(h.history[acc])
-        plt.plot(h.history['val_' + acc])
-        plt.ylabel('acc')
-        plt.xlabel('epoch')
-        plt.legend(['train', 'test'], loc='upper left')
-    plt.show()
