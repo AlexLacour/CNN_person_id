@@ -49,6 +49,10 @@ def main(training=True):
     img2 = cv2.imread(os.path.join(imdir, img2_name))
     img3 = cv2.imread(os.path.join(imdir, img3_name))
 
+    """
+    L'image 1 et 2 représentant la même personne obtiennent une distance environ égale à 7.
+    L'image 1 et 3 ont quant à elles une distance de plus de 20.
+    """
     print(img_features_comparison(img1, img2, model))
     print(img_features_comparison(img1, img3, model))
 
