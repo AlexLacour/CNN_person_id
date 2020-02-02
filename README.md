@@ -3,10 +3,13 @@ Implémentation de l'article "Improving Person Re-identification by Attribute an
 
 ## Pré-requis
 Ce projet est réalisé à l'aide des librairies suivantes :
-- Keras (avec Tensorflow backend)
-- Opencv-python
-- Scikit-learn
-- Numpy
+- keras==2.3.1
+- tensorflow==1.13.1
+- opencv-python==4.1.2
+- scikit-learn==0.21.2
+- numpy==1.16.4
+- matplotlib==3.1.0
+- json==2.0.9
 
 ## Lancement du projet
 Le modèle est entraîné sur la base de données Market-1501 composée de :
