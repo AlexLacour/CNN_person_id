@@ -10,7 +10,7 @@ import data
 import reid_model
 
 
-N_EPOCHS = 10
+N_EPOCHS = 60
 BATCH_SIZE = 32
 TEST_SIZE = 0.2
 PREPRO_ATT = True

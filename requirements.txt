@@ -1,0 +1,7 @@
+keras==2.3.1
+tensorflow==1.13.1
+opencv-python==4.1.2
+scikit-learn==0.21.2
+numpy==1.16.4
+matplotlib==3.1.0
+json==2.0.9
