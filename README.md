@@ -49,6 +49,14 @@ Test set:
 - 'rank_5': 0.9524940617577197
 - 'rank_10': 0.9716943784639747
 
+Evolution de la fonction de coût et de la précision du modèle :
+![Fonction de coût pour le modèle complet, la prédiction d'attributs, et la classification de l'image](./loss.png)
+
+Fonction de coût pour le modèle complet, la prédiction d'attributs, et la classification de l'image. La fonction de coût totale du modèle est calculée de la manière suivante : L_totale = 0.9*L_id + 0.1*L_attributs.
+
+![Précision pour le modèle complet, la prédiction d'attributs, et la classification de l'image](./acc.png)
+
+Précision du modèle pour la prédiction d'attributs, et la classification de l'image (de haut en bas).
 
 ### Contributeurs
 Projet réalisé dans le cadre de la majeure Intelligence Artificielle (ESME Sudria 2019/2020) par Alexandre Lacour et Hippolyte Foussat.
