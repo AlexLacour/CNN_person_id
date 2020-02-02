@@ -28,6 +28,7 @@ Le projet est constitué des 4 fichiers suivants :
 
 ## Modifications apportées aux données
 L'architecture et la méthode d'entraînement du modèle sont celles décrites dans l'article cité plus haut (module de repondération compris). La principale modification apportée est l'adaptation des attributs à un problème de classification multi-labels, afin de faciliter l'apprentissage.
+La séparation Train/Test est également différente, et correspond ici à 80% du dataset global pour le train et 20% pour le test.
 
 Attributs initiaux :
 [2 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 2 2 2 1 1 1]
@@ -35,8 +36,18 @@ Attributs initiaux :
 Attributs modifiés :
 [0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0]
 
-## Performances
-Graphe de performances + Scores
+## Performances sur la classification de l'image parmi les 1501 classes
+Train set: 
+- 'mAP': 0.9613158840471077
+- 'rank_1': 0.9887662691146633
+- 'rank_5': 0.9986143415648043
+- 'rank_10': 0.9993566585836591
+
+Test set:
+- 'mAP': 0.8046109612447331
+- 'rank_1': 0.8477830562153602
+- 'rank_5': 0.9524940617577197
+- 'rank_10': 0.9716943784639747
 
 
 ### Contributeurs
