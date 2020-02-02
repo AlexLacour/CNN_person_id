@@ -26,6 +26,14 @@ Le projet est constitué des 4 fichiers suivants :
 - train.py : lance l'entraînement du modèle, augmente les données, et fournit ses performances sur les métriques mAP, ainsi que rank-1, rank-5, rank-10
 - main.py : entraîne le modèle, puis l'applique à la prédiction d'attributs et d'ID pour une image donnée, ainsi qu'à la comparaison de features entre deux images pour ré-identifier une personne
 
+## Modifications apportées aux données
+L'architecture et la méthode d'entraînement du modèle sont celles décrites dans l'article cité plus haut (module de repondération compris). La principale modification apportée est l'adaptation des attributs à un problème de classification multi-labels, afin de faciliter l'apprentissage.
+
+Attributs initiaux :
+[2 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 2 2 2 1 1 1]
+Attributs modifiés :
+[0 1 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 1 1 0 0 0]
+
 ## Performances
 Graphe de performances + Scores
 
