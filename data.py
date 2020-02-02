@@ -130,4 +130,5 @@ def data_for_full_model(preprocess_att=False):
 
 
 if __name__ == '__main__':
-    print(get_attributes_names())
+    _, att, _ = data_for_full_model(True)
+    print(att[0])
